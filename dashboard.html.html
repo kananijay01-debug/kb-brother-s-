@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KB Brother's | Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0 }
+  :root {
+    --cr: #F9F5EC; --cr2: #F0E8D8; --cr3: #DECFAF;
+    --gr: #2C5427; --gr2: #4A7A40; --grp: #C8DEB8; --grf: #EBF4E0;
+    --or: #C76018; --or2: #E08A3E; --orp: #F8EAD6;
+    --rd: #C0392B; --rdp: #FBEAE8;
+    --am: #C7900F; --amp: #FBF1DC;
+    --br: #5C3A1E; --tx: #201509; --tx2: #6A5440; --tx3: #9C8570;
+    --fs: 'Playfair Display', serif; --fn: 'Outfit', sans-serif;
+    --sbw: 240px;
+  }
+  html { scroll-behavior: smooth }
+  body { font-family: var(--fn); background: var(--cr2); color: var(--tx); min-height: 100vh }
+  button, input, select, textarea { font-family: var(--fn) }
+  img { max-width: 100%; display: block }
+  ::-webkit-scrollbar { width: 8px; height: 8px }
+  ::-webkit-scrollbar-thumb { background: var(--cr3); border-radius: 8px }
+
+  /* ══════ LOGIN ══════ */
+  .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--cr) }
+  .login-box { max-width: 380px; width: 100%; background: #fff; border: 1px solid var(--cr3); border-radius: 22px; padding: 44px 34px; text-align: center; box-shadow: 0 24px 50px rgba(92,58,30,.16) }
+  .login-ic { width: 64px; height: 64px; border-radius: 50%; background: var(--grf); color: var(--gr); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 18px }
+  .login-box h1 { font-family: var(--fs); font-size: 23px; color: var(--tx); margin-bottom: 6px }
+  .login-box p { font-size: 13px; color: var(--tx2); margin-bottom: 24px; line-height: 1.6 }
+  .login-box input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--cr3); margin-bottom: 14px; font-size: 14.5px; text-align: center; letter-spacing: .05em }
+  .login-box input:focus { outline: none; border-color: var(--gr) }
+  .login-btn { width: 100%; background: var(--gr); color: var(--cr); border: none; padding: 14px; border-radius: 12px; font-size: 14.5px; font-weight: 600; cursor: pointer; transition: all .2s }
+  .login-btn:hover { background: var(--or); transform: translateY(-1px) }
+  .login-err { color: #c0392b; font-size: 12.5px; margin-top: 12px; min-height: 16px; font-weight: 500 }
+
+  /* ══════ APP SHELL ══════ */
+  #dash-screen { display: none }
+  .app { display: flex; min-height: 100vh }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sbw); flex-shrink: 0; background: linear-gradient(180deg, var(--br), #241608); color: var(--cr); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100 }
+  .sb-brand { display: flex; align-items: center; gap: 12px; padding: 26px 22px; border-bottom: 1px solid rgba(255,255,255,.1) }
+  .sb-logo { width: 42px; height: 42px; border-radius: 11px; background: linear-gradient(150deg, var(--gr), var(--gr2)); display: flex; align-items: center; justify-content: center; font-family: var(--fs); font-weight: 700; font-size: 16px; flex-shrink: 0 }
+  .sb-name { font-family: var(--fs); font-size: 16px; font-weight: 700; line-height: 1.2 }
+  .sb-sub { font-size: 10px; color: var(--orp); letter-spacing: .08em; text-transform: uppercase; margin-top: 2px }
+  .sb-nav { flex: 1; padding: 18px 14px; display: flex; flex-direction: column; gap: 4px }
+  .sb-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: none; border: none; color: rgba(249,245,236,.72); cursor: pointer; font-size: 13.5px; font-weight: 500; text-align: left; transition: all .2s; position: relative }
+  .sb-item:hover { background: rgba(255,255,255,.06); color: var(--cr) }
+  .sb-item.on { background: var(--gr); color: var(--cr) }
+  .sb-ic { font-size: 16px; width: 20px; text-align: center }
+  .sb-badge { margin-left: auto; background: var(--rd); color: #fff; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 99px; min-width: 18px; text-align: center }
+  .sb-foot { padding: 16px; border-top: 1px solid rgba(255,255,255,.1) }
+  .sb-logout { width: 100%; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: var(--cr); padding: 11px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all .2s }
+  .sb-logout:hover { background: var(--or) }
+
+  /* MAIN */
+  .main { flex: 1; margin-left: var(--sbw); display: flex; flex-direction: column }
+  .topbar { background: #fff; border-bottom: 1px solid var(--cr3); padding: 20px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 90 }
+  .page-title { font-family: var(--fs); font-size: 21px; font-weight: 700; color: var(--tx) }
+  .page-sub { font-size: 12px; color: var(--tx3); margin-top: 2px }
+  .tb-spacer { flex: 1 }
+  .bell-wrap { position: relative }
+  .bell-btn { width: 42px; height: 42px; border-radius: 12px; background: var(--cr2); border: 1px solid var(--cr3); cursor: pointer; font-size: 17px; position: relative; display: flex; align-items: center; justify-content: center }
+  .bell-btn:hover { background: var(--cr3) }
+  .bell-dot { position: absolute; top: -4px; right: -4px; background: var(--rd); color: #fff; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 99px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid #fff }
+  .bell-drop { display: none; position: absolute; top: 52px; right: 0; width: 320px; background: #fff; border: 1px solid var(--cr3); border-radius: 16px; box-shadow: 0 20px 44px rgba(92,58,30,.2); padding: 8px; max-height: 380px; overflow-y: auto; z-index: 200 }
+  .bell-drop.show { display: block }
+  .bell-drop h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--tx3); padding: 10px 12px 6px }
+  .bell-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px }
+  .bell-row:hover { background: var(--cr) }
+  .bell-ic { font-size: 18px; flex-shrink: 0 }
+  .bell-tx { flex: 1; min-width: 0 }
+  .bell-nm { font-size: 12.5px; font-weight: 600; color: var(--tx) }
+  .bell-st { font-size: 11px; color: var(--tx3) }
+  .bell-empty { text-align: center; padding: 26px 10px; font-size: 12.5px; color: var(--tx3) }
+
+  .content { padding: 28px 32px 60px }
+
+  /* ALERT BANNER */
+  .alert-banner { background: var(--rdp); border: 1px solid #eec8c3; border-radius: 16px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 24px }
+  .alert-banner.warn { background: var(--amp); border-color: #edd9a3 }
+  .alert-ic { font-size: 22px; flex-shrink: 0 }
+  .alert-tx b { display: block; font-size: 13.5px; color: var(--tx); margin-bottom: 2px }
+  .alert-tx span { font-size: 12px; color: var(--tx2) }
+
+  /* STAT CARDS */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px }
+  .stat-card { background: #fff; border: 1px solid var(--cr3); border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 8px }
+  .stat-top { display: flex; align-items: center; justify-content: space-between }
+  .stat-ic { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px }
+  .stat-n { font-family: var(--fs); font-size: 27px; font-weight: 700; color: var(--br) }
+  .stat-l { font-size: 11.5px; color: var(--tx3); text-transform: uppercase; letter-spacing: .05em }
+  .stat-card.rd .stat-n { color: var(--rd) }
+  .stat-card.am .stat-n { color: var(--am) }
+
+  /* CHART GRID */
+  .charts-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; margin-bottom: 24px }
+  @media (max-width: 1100px) { .charts-grid { grid-template-columns: 1fr } .stats { grid-template-columns: repeat(2,1fr) } }
+  .chart-card { background: #fff; border: 1px solid var(--cr3); border-radius: 18px; padding: 22px }
+  .chart-card h3 { font-family: var(--fs); font-size: 16px; margin-bottom: 16px; color: var(--tx) }
+  .chart-box { position: relative; height: 260px }
+
+  /* LOW STOCK LIST CARD */
+  .list-card { background: #fff; border: 1px solid var(--cr3); border-radius: 18px; padding: 22px; margin-bottom: 24px }
+  .list-card h3 { font-family: var(--fs); font-size: 16px; margin-bottom: 16px; color: var(--tx); display: flex; align-items: center; gap: 8px }
+  .mini-row { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-bottom: 1px solid var(--cr2) }
+  .mini-row:last-child { border-bottom: none }
+  .mini-thumb { width: 40px; height: 40px; border-radius: 9px; background: var(--grf); display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden; flex-shrink: 0 }
+  .mini-thumb img { width: 100%; height: 100%; object-fit: cover }
+  .mini-body { flex: 1; min-width: 0 }
+  .mini-nm { font-size: 13px; font-weight: 600; color: var(--tx) }
+  .mini-stock { font-size: 11.5px; color: var(--tx3) }
+  .status-pill { font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; text-transform: uppercase; letter-spacing: .03em }
+  .status-out { background: var(--rdp); color: var(--rd) }
+  .status-low { background: var(--amp); color: var(--am) }
+  .status-ok { background: var(--grf); color: var(--gr) }
+
+  /* PRODUCTS PAGE */
+  .toolbar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center }
+  .search-box { flex: 1; min-width: 220px; position: relative }
+  .search-box input { width: 100%; padding: 12px 16px 12px 40px; border-radius: 12px; border: 1.5px solid var(--cr3); font-size: 13.5px; background: #fff }
+  .search-box input:focus { outline: none; border-color: var(--gr) }
+  .search-ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--tx3); font-size: 14px }
+  .filter-select { padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--cr3); font-size: 13px; background: #fff; color: var(--tx2) }
+  .add-btn { background: var(--gr); color: var(--cr); border: none; padding: 12px 22px; border-radius: 12px; font-size: 13.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap }
+  .add-btn:hover { background: var(--gr2) }
+
+  .prod-table { background: #fff; border: 1px solid var(--cr3); border-radius: 18px; overflow: hidden }
+  .pt-head { display: grid; grid-template-columns: 46px 2fr 1fr 1fr 1fr 90px; gap: 12px; padding: 14px 20px; background: var(--cr); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--tx3); font-weight: 600 }
+  .pt-row { display: grid; grid-template-columns: 46px 2fr 1fr 1fr 1fr 90px; gap: 12px; padding: 14px 20px; align-items: center; border-top: 1px solid var(--cr2) }
+  .pt-row:hover { background: var(--cr) }
+  .pt-thumb { width: 42px; height: 42px; border-radius: 9px; background: var(--grf); display: flex; align-items: center; justify-content: center; font-size: 19px; overflow: hidden }
+  .pt-thumb img { width: 100%; height: 100%; object-fit: cover }
+  .pt-nm { font-weight: 600; font-size: 13.5px; color: var(--tx) }
+  .pt-desc { font-size: 11px; color: var(--tx3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px }
+  .pt-cat { font-size: 12px; color: var(--tx2) }
+  .pt-stock { font-size: 13px; font-weight: 600; color: var(--tx) }
+  .pt-actions { display: flex; gap: 6px; justify-content: flex-end }
+  .pt-actions button { border: none; background: var(--cr2); color: var(--tx2); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px }
+  .pt-actions button:hover { background: var(--gr); color: #fff }
+  .pt-actions .del:hover { background: var(--rd); color: #fff }
+  .empty-msg { text-align: center; color: var(--tx3); font-size: 13px; padding: 40px 10px }
+  @media (max-width: 900px) { .pt-head { display: none } .pt-row { grid-template-columns: 1fr; gap: 6px; padding: 16px 20px } .pt-actions { justify-content: flex-start; margin-top: 8px } }
+
+  /* ADD/EDIT FORM PAGE */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px }
+  @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr } }
+  .form-card { background: #fff; border: 1px solid var(--cr3); border-radius: 18px; padding: 26px; max-width: 720px }
+  .f-group { margin-bottom: 16px }
+  .f-group label { display: block; font-size: 11.5px; font-weight: 600; color: var(--tx2); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px }
+  .f-group input[type=text], .f-group input[type=number], .f-group input[type=file], .f-group textarea, .f-group select {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--cr3); font-size: 13.5px; color: var(--tx); background: var(--cr);
+  }
+  .f-group input:focus, .f-group textarea:focus, .f-group select:focus { outline: none; border-color: var(--gr); background: #fff }
+  .f-group textarea { min-height: 76px; resize: vertical }
+  .f-hint { font-size: 11px; color: var(--tx3); margin-top: 5px }
+  .img-preview { margin-top: 8px; font-size: 11.5px; color: var(--tx3); line-height: 1.5 }
+  .img-preview img { width: 100%; max-height: 160px; object-fit: cover; border-radius: 10px; margin-top: 6px }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; cursor: pointer; border: none; transition: all .2s; border-radius: 99px; font-size: 13.5px; padding: 13px 24px }
+  .btn-gr { background: var(--gr); color: var(--cr) }
+  .btn-gr:hover { background: var(--gr2) }
+  .btn-ol { background: transparent; color: var(--gr); border: 1.5px solid var(--gr) }
+  .btn-ol:hover { background: var(--gr); color: var(--cr) }
+  .btn-or { background: var(--or); color: #fff }
+  .btn-or:hover { background: #a04f12 }
+  .btn-row { display: flex; gap: 10px; margin-top: 6px }
+
+  .note { font-size: 11.5px; color: var(--tx3); line-height: 1.6; margin-top: 18px; background: var(--cr); border-radius: 10px; padding: 12px 14px }
+
+  .toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--br); color: var(--cr); padding: 14px 26px; border-radius: 99px; font-size: 13.5px; box-shadow: 0 14px 30px rgba(0,0,0,.25); opacity: 0; pointer-events: none; transition: all .3s; z-index: 999 }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) }
+
+  .page { display: none }
+  .page.show { display: block; animation: fadein .35s ease }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+</style>
+</head>
+<body>
+
+<!-- ══════ LOGIN SCREEN ══════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-ic">🔒</div>
+    <h1>Owner Dashboard</h1>
+    <p>KB Brother's — Product &amp; Inventory Manager<br>Only the owner can enter. Please enter the password.</p>
+    <input type="password" id="pass-input" placeholder="Password" onkeydown="if(event.key==='Enter') login()">
+    <button class="login-btn" onclick="login()">Login →</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ══════ DASHBOARD ══════ -->
+<div id="dash-screen">
+  <div class="app">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">KB</div>
+        <div>
+          <div class="sb-name">KB Brother's</div>
+          <div class="sb-sub">Owner Panel</div>
+        </div>
+      </div>
+      <div class="sb-nav">
+        <button class="sb-item on" data-page="overview" onclick="goPage('overview')"><span class="sb-ic">📊</span> Overview</button>
+        <button class="sb-item" data-page="products" onclick="goPage('products')"><span class="sb-ic">📦</span> Products <span class="sb-badge" id="sb-total-badge">0</span></button>
+        <button class="sb-item" data-page="form" onclick="openAddForm()"><span class="sb-ic">➕</span> Add Product</button>
+        <button class="sb-item" data-page="alerts" onclick="goPage('alerts')"><span class="sb-ic">🔔</span> Stock Alerts <span class="sb-badge" id="sb-alert-badge" style="display:none">0</span></button>
+      </div>
+      <div class="sb-foot">
+        <button class="sb-logout" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div>
+          <div class="page-title" id="page-title">Overview</div>
+          <div class="page-sub" id="page-sub">Business snapshot &amp; inventory health</div>
+        </div>
+        <div class="tb-spacer"></div>
+        <div class="bell-wrap">
+          <button class="bell-btn" onclick="toggleBell()">🔔<span class="bell-dot" id="bell-dot" style="display:none">0</span></button>
+          <div class="bell-drop" id="bell-drop">
+            <h4>Stock Alerts</h4>
+            <div id="bell-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ══════ OVERVIEW PAGE ══════ -->
+        <div class="page show" id="page-overview">
+          <div id="alert-banner-slot"></div>
+
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-top"><div class="stat-ic" style="background:var(--grf);color:var(--gr)">📦</div></div>
+              <div class="stat-n" id="s-total">0</div>
+              <div class="stat-l">Total Products</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-top"><div class="stat-ic" style="background:var(--orp);color:var(--or)">⚖️</div></div>
+              <div class="stat-n" id="s-stock">0</div>
+              <div class="stat-l">Total Stock (kg)</div>
+            </div>
+            <div class="stat-card am">
+              <div class="stat-top"><div class="stat-ic" style="background:var(--amp);color:var(--am)">⚠️</div></div>
+              <div class="stat-n" id="s-low">0</div>
+              <div class="stat-l">Low Stock Items</div>
+            </div>
+            <div class="stat-card rd">
+              <div class="stat-top"><div class="stat-ic" style="background:var(--rdp);color:var(--rd)">🚫</div></div>
+              <div class="stat-n" id="s-out">0</div>
+              <div class="stat-l">Out of Stock</div>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3>Stock Level by Product (kg)</h3>
+              <div class="chart-box"><canvas id="chart-stock"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Products by Category</h3>
+              <div class="chart-box"><canvas id="chart-cat"></canvas></div>
+            </div>
+          </div>
+
+          <div class="list-card">
+            <h3>⚠️ Needs Attention</h3>
+            <div id="attention-list"></div>
+          </div>
+        </div>
+
+        <!-- ══════ PRODUCTS PAGE ══════ -->
+        <div class="page" id="page-products">
+          <div class="toolbar">
+            <div class="search-box">
+              <span class="search-ic">🔍</span>
+              <input type="text" id="search-input" placeholder="Search products by name..." oninput="renderTable()">
+            </div>
+            <select class="filter-select" id="cat-filter" onchange="renderTable()">
+              <option value="">All Categories</option>
+            </select>
+            <select class="filter-select" id="status-filter" onchange="renderTable()">
+              <option value="">All Status</option>
+              <option value="ok">In Stock</option>
+              <option value="low">Low Stock</option>
+              <option value="out">Out of Stock</option>
+            </select>
+            <button class="add-btn" onclick="openAddForm()">➕ Add Product</button>
+          </div>
+
+          <div class="prod-table">
+            <div class="pt-head">
+              <div></div><div>Product</div><div>Category</div><div>Stock</div><div>Status</div><div></div>
+            </div>
+            <div id="table-body"></div>
+          </div>
+
+          <div class="btn-row" style="margin-top:20px">
+            <button class="btn btn-ol" onclick="exportBackup()">⬇ Export Backup (JSON)</button>
+            <button class="btn btn-or" onclick="resetProducts()">↺ Reset to Default</button>
+          </div>
+        </div>
+
+        <!-- ══════ ADD/EDIT FORM PAGE ══════ -->
+        <div class="page" id="page-form">
+          <div class="form-card">
+            <h3 id="form-title" style="font-family:var(--fs);font-size:18px;margin-bottom:18px">➕ Add New Product</h3>
+            <div class="form-grid">
+              <div class="f-group"><label>Product Name *</label><input type="text" id="p-name" placeholder="e.g. Onion Powder"></div>
+              <div class="f-group"><label>Category</label><input type="text" id="p-cat" placeholder="e.g. Vegetable Powder"></div>
+            </div>
+            <div class="f-group"><label>Description</label><textarea id="p-desc" placeholder="Short product description..."></textarea></div>
+            <div class="form-grid">
+              <div class="f-group">
+                <label>Stock Quantity (kg)</label>
+                <input type="number" id="p-stock" placeholder="e.g. 250" min="0" oninput="updateThresholdHint()">
+              </div>
+              <div class="f-group">
+                <label>Low Stock Alert Threshold (kg)</label>
+                <input type="number" id="p-threshold" placeholder="e.g. 25" min="0">
+                <div class="f-hint" id="threshold-hint">Alert triggers when stock falls at or below this number.</div>
+              </div>
+            </div>
+            <div class="f-group">
+              <label>Product Photo</label>
+              <input type="file" id="p-img" accept="image/*" onchange="previewImg(event)">
+              <div class="img-preview" id="p-img-preview">No photo selected — an emoji icon will be used instead.</div>
+            </div>
+            <div class="f-group"><label>Emoji (used if no photo)</label><input type="text" id="p-emoji" placeholder="🧅" maxlength="4"></div>
+            <div class="btn-row">
+              <button class="btn btn-gr" onclick="saveProduct()">Save Product</button>
+              <button class="btn btn-ol" onclick="goPage('products')">Cancel</button>
+            </div>
+            <div class="note">📌 This dashboard reads/writes the same product list your website uses (browser storage key <b>kb_products</b>). Keep this file in the same website folder/domain as <b>index.html</b> so both stay in sync.</div>
+          </div>
+        </div>
+
+        <!-- ══════ ALERTS PAGE ══════ -->
+        <div class="page" id="page-alerts">
+          <div class="list-card">
+            <h3>🔔 All Stock Alerts</h3>
+            <div id="alerts-full-list"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+  // ══════════════════════════════════════════════════════════
+  // 👉 OWNER: Change this password, then save the file.
+  var ADMIN_PASSWORD = 'kbbrothers@2026';
+  // ══════════════════════════════════════════════════════════
+
+  var STORAGE_KEY = 'kb_products';
+
+  var DEFAULT_PRODUCTS = [
+    { name: 'Onion Powder', cat: 'Vegetable Powder', em: '🧅', bg: 'bg2', desc: 'Made from farm-fresh onions, dehydrated and milled for consistent pungency and colour in seasonings and blends.', stock: 320, threshold: 40 },
+    { name: 'Garlic Powder', cat: 'Spice Powder', em: '🧄', bg: 'bg3', desc: 'Finely ground dehydrated garlic offering concentrated aroma and flavour for culinary and food processing use.', stock: 180, threshold: 30 },
+    { name: 'Tomato Powder', cat: 'Vegetable Powder', em: '🍅', bg: 'bg4', desc: 'Sun-ripened tomatoes dehydrated into a vibrant powder, ideal for soups, sauces and instant food mixes.', stock: 25, threshold: 30 },
+    { name: 'Ginger Powder', cat: 'Spice Powder', em: '🫚', bg: 'bg3', desc: 'Dried and milled ginger retaining natural pungency, used widely in spice blends and beverages.', stock: 90, threshold: 20 },
+    { name: 'Beetroot Powder', cat: 'Vegetable Powder', em: '🍠', bg: 'bg4', desc: 'Naturally sweet and richly coloured, used as a natural colourant and nutrition booster in food products.', stock: 0, threshold: 15 },
+    { name: 'Spinach Powder', cat: 'Vegetable Powder', em: '🥬', bg: 'bg2', desc: 'Dehydrated green leafy powder rich in colour and nutrients, suited for health foods and bakery blends.', stock: 60, threshold: 15 },
+    { name: 'Moringa Powder', cat: 'Food Ingredient', em: '🌿', bg: 'bg2', desc: 'Nutrient-dense leaf powder processed under controlled conditions to preserve its natural properties.', stock: 45, threshold: 10 },
+    { name: 'Banana Powder', cat: 'Fruit Powder', em: '🍌', bg: 'bg3', desc: 'Ripe bananas dehydrated into a fine powder, used in infant nutrition, bakery and beverage industries.', stock: 110, threshold: 20 },
+    { name: 'Mango Powder', cat: 'Fruit Powder', em: '🥭', bg: 'bg3', desc: 'Tangy dried mango powder (Amchur), a staple souring agent in Indian spice blends and masalas.', stock: 15, threshold: 20 },
+    { name: 'Green Chilli Powder', cat: 'Spice Powder', em: '🌶️', bg: 'bg2', desc: 'Dehydrated green chillies milled to a coarse powder, delivering fresh heat for spice blends and marinades.', stock: 70, threshold: 15 }
+  ];
+
+  var BGS = ['bg1', 'bg2', 'bg3', 'bg4', 'bg5'];
+  var PRODUCTS = [];
+  var editIndex = -1;
+  var tempImgData = '';
+  var chartStock = null, chartCat = null;
+
+  // ── AUTH ──
+  function login() {
+    var val = document.getElementById('pass-input').value;
+    if (val === ADMIN_PASSWORD) {
+      sessionStorage.setItem('kb_admin_ok', '1');
+      enterDashboard();
+    } else {
+      document.getElementById('login-err').textContent = 'Incorrect password. Please try again.';
+      document.getElementById('pass-input').value = '';
+    }
+  }
+  function logout() {
+    sessionStorage.removeItem('kb_admin_ok');
+    document.getElementById('dash-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('pass-input').value = '';
+  }
+  function enterDashboard() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dash-screen').style.display = 'block';
+    loadProducts();
+    renderAll();
+  }
+  function checkAuth() {
+    if (sessionStorage.getItem('kb_admin_ok') === '1') { enterDashboard(); }
+    else { document.getElementById('login-screen').style.display = 'flex'; }
+  }
+
+  // ── DATA ──
+  function loadProducts() {
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { PRODUCTS = JSON.parse(saved); } catch (e) { PRODUCTS = DEFAULT_PRODUCTS.slice(); }
+    } else {
+      PRODUCTS = DEFAULT_PRODUCTS.slice();
+    }
+    // migrate old entries that don't have stock/threshold fields yet
+    PRODUCTS.forEach(function (p) {
+      if (typeof p.stock !== 'number') p.stock = 0;
+      if (typeof p.threshold !== 'number') p.threshold = 10;
+    });
+  }
+  function persistProducts() { localStorage.setItem(STORAGE_KEY, JSON.stringify(PRODUCTS)); }
+
+  function resetProducts() {
+    if (!confirm('Reset product list to default? This removes all your changes.')) return;
+    PRODUCTS = DEFAULT_PRODUCTS.slice();
+    persistProducts();
+    renderAll();
+    showToast('↺ Reset to default product list.');
+  }
+  function exportBackup() {
+    var blob = new Blob([JSON.stringify(PRODUCTS, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'kb-products-backup.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('⬇ Backup downloaded.');
+  }
+
+  // ── STATUS HELPERS ──
+  function getStatus(p) {
+    if (p.stock <= 0) return 'out';
+    if (p.stock <= p.threshold) return 'low';
+    return 'ok';
+  }
+  function statusLabel(s) { return s === 'out' ? 'Out of Stock' : s === 'low' ? 'Low Stock' : 'In Stock'; }
+  function statusPillClass(s) { return s === 'out' ? 'status-out' : s === 'low' ? 'status-low' : 'status-ok'; }
+
+  // ── NAV ──
+  function goPage(page) {
+    document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('show'); });
+    document.getElementById('page-' + page).classList.add('show');
+    document.querySelectorAll('.sb-item').forEach(function (b) { b.classList.toggle('on', b.dataset.page === page); });
+    var titles = { overview: ['Overview', 'Business snapshot & inventory health'], products: ['Products', 'Manage your full product catalog'], form: [document.getElementById('form-title').textContent, 'Fill in product details below'], alerts: ['Stock Alerts', 'Products that need restocking'] };
+    document.getElementById('page-title').textContent = titles[page][0];
+    document.getElementById('page-sub').textContent = titles[page][1];
+    document.getElementById('bell-drop').classList.remove('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (page === 'products') renderTable();
+    if (page === 'alerts') renderAlertsFull();
+  }
+  function openAddForm() { cancelEdit(); goPage('form'); document.querySelectorAll('.sb-item').forEach(function(b){b.classList.toggle('on', b.dataset.page==='form');}); }
+
+  function toggleBell() { document.getElementById('bell-drop').classList.toggle('show'); }
+  document.addEventListener('click', function (e) {
+    var w = document.querySelector('.bell-wrap');
+    if (w && !w.contains(e.target)) document.getElementById('bell-drop').classList.remove('show');
+  });
+
+  // ── FORM ──
+  function previewImg(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      tempImgData = ev.target.result;
+      document.getElementById('p-img-preview').innerHTML = '<img src="' + tempImgData + '">';
+    };
+    reader.readAsDataURL(file);
+  }
+  function updateThresholdHint() {}
+
+  function saveProduct() {
+    var name = document.getElementById('p-name').value.trim();
+    var cat = document.getElementById('p-cat').value.trim() || 'General';
+    var desc = document.getElementById('p-desc').value.trim() || 'Premium quality product from KB Brother\'s.';
+    var emoji = document.getElementById('p-emoji').value.trim() || '📦';
+    var stock = parseFloat(document.getElementById('p-stock').value) || 0;
+    var threshold = parseFloat(document.getElementById('p-threshold').value) || 10;
+
+    if (!name) { showToast('⚠️ Please enter a product name.'); return; }
+
+    var prod = {
+      name: name, cat: cat, desc: desc, em: emoji, stock: stock, threshold: threshold,
+      bg: (editIndex > -1 ? PRODUCTS[editIndex].bg : BGS[Math.floor(Math.random() * BGS.length)]),
+      img: tempImgData || (editIndex > -1 ? PRODUCTS[editIndex].img : '')
+    };
+
+    if (editIndex > -1) { PRODUCTS[editIndex] = prod; } else { PRODUCTS.push(prod); }
+
+    persistProducts();
+    renderAll();
+    cancelEdit();
+    showToast('✅ Product saved successfully.');
+    goPage('products');
+  }
+
+  function editProduct(i) {
+    var p = PRODUCTS[i];
+    editIndex = i;
+    document.getElementById('form-title').textContent = '✏️ Edit Product';
+    document.getElementById('p-name').value = p.name;
+    document.getElementById('p-cat').value = p.cat;
+    document.getElementById('p-desc').value = p.desc;
+    document.getElementById('p-emoji').value = p.em || '';
+    document.getElementById('p-stock').value = p.stock || 0;
+    document.getElementById('p-threshold').value = p.threshold || 10;
+    document.getElementById('p-img').value = '';
+    tempImgData = p.img || '';
+    document.getElementById('p-img-preview').innerHTML = tempImgData ? '<img src="' + tempImgData + '">' : 'No photo selected — an emoji icon will be used instead.';
+    goPage('form');
+  }
+  function cancelEdit() {
+    editIndex = -1;
+    tempImgData = '';
+    document.getElementById('form-title').textContent = '➕ Add New Product';
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-cat').value = '';
+    document.getElementById('p-desc').value = '';
+    document.getElementById('p-emoji').value = '';
+    document.getElementById('p-stock').value = '';
+    document.getElementById('p-threshold').value = '';
+    document.getElementById('p-img').value = '';
+    document.getElementById('p-img-preview').innerHTML = 'No photo selected — an emoji icon will be used instead.';
+  }
+  function deleteProduct(i) {
+    if (!confirm('Delete "' + PRODUCTS[i].name + '"? This cannot be undone.')) return;
+    PRODUCTS.splice(i, 1);
+    persistProducts();
+    renderAll();
+    renderTable();
+  }
+
+  // ── RENDER: OVERVIEW ──
+  function renderAll() {
+    document.getElementById('sb-total-badge').textContent = PRODUCTS.length;
+
+    var totalStock = PRODUCTS.reduce(function (a, p) { return a + (p.stock || 0); }, 0);
+    var lowItems = PRODUCTS.filter(function (p) { return getStatus(p) === 'low'; });
+    var outItems = PRODUCTS.filter(function (p) { return getStatus(p) === 'out'; });
+    var alertCount = lowItems.length + outItems.length;
+
+    document.getElementById('s-total').textContent = PRODUCTS.length;
+    document.getElementById('s-stock').textContent = totalStock.toLocaleString();
+    document.getElementById('s-low').textContent = lowItems.length;
+    document.getElementById('s-out').textContent = outItems.length;
+
+    // sidebar + bell badges
+    var alertBadge = document.getElementById('sb-alert-badge');
+    if (alertCount > 0) { alertBadge.style.display = 'inline-block'; alertBadge.textContent = alertCount; }
+    else { alertBadge.style.display = 'none'; }
+
+    var bellDot = document.getElementById('bell-dot');
+    if (alertCount > 0) { bellDot.style.display = 'flex'; bellDot.textContent = alertCount; }
+    else { bellDot.style.display = 'none'; }
+
+    // banner
+    var bannerSlot = document.getElementById('alert-banner-slot');
+    if (outItems.length > 0) {
+      bannerSlot.innerHTML = '<div class="alert-banner"><div class="alert-ic">🚫</div><div class="alert-tx"><b>' + outItems.length + ' product' + (outItems.length > 1 ? 's are' : ' is') + ' completely out of stock!</b><span>' + outItems.map(function (p) { return p.name; }).join(', ') + ' — restock urgently.</span></div></div>';
+    } else if (lowItems.length > 0) {
+      bannerSlot.innerHTML = '<div class="alert-banner warn"><div class="alert-ic">⚠️</div><div class="alert-tx"><b>' + lowItems.length + ' product' + (lowItems.length > 1 ? 's are' : ' is') + ' running low on stock.</b><span>' + lowItems.map(function (p) { return p.name; }).join(', ') + ' — consider restocking soon.</span></div></div>';
+    } else {
+      bannerSlot.innerHTML = '<div class="alert-banner" style="background:var(--grf);border-color:var(--grp)"><div class="alert-ic">✅</div><div class="alert-tx"><b>All products are well stocked.</b><span>No alerts right now — great job!</span></div></div>';
+    }
+
+    // bell dropdown list
+    var bellList = document.getElementById('bell-list');
+    var alertItems = outItems.concat(lowItems);
+    if (alertItems.length === 0) {
+      bellList.innerHTML = '<div class="bell-empty">No alerts right now 🎉</div>';
+    } else {
+      bellList.innerHTML = alertItems.map(function (p) {
+        var st = getStatus(p);
+        return '<div class="bell-row"><div class="bell-ic">' + (st === 'out' ? '🚫' : '⚠️') + '</div><div class="bell-tx"><div class="bell-nm">' + p.name + '</div><div class="bell-st">' + p.stock + ' kg left · threshold ' + p.threshold + ' kg</div></div></div>';
+      }).join('');
+    }
+
+    // needs attention list (overview)
+    var attnList = document.getElementById('attention-list');
+    if (alertItems.length === 0) {
+      attnList.innerHTML = '<div class="empty-msg">Nothing needs attention right now.</div>';
+    } else {
+      attnList.innerHTML = alertItems.map(function (p) {
+        var idx = PRODUCTS.indexOf(p);
+        var st = getStatus(p);
+        var thumb = p.img ? '<img src="' + p.img + '">' : p.em;
+        return '<div class="mini-row"><div class="mini-thumb">' + thumb + '</div><div class="mini-body"><div class="mini-nm">' + p.name + '</div><div class="mini-stock">' + p.stock + ' kg in stock · threshold ' + p.threshold + ' kg</div></div><span class="status-pill ' + statusPillClass(st) + '">' + statusLabel(st) + '</span></div>';
+      }).join('');
+    }
+
+    renderCharts();
+    populateCategoryFilter();
+  }
+
+  function renderAlertsFull() {
+    var alertItems = PRODUCTS.filter(function (p) { return getStatus(p) !== 'ok'; });
+    var el = document.getElementById('alerts-full-list');
+    if (alertItems.length === 0) {
+      el.innerHTML = '<div class="empty-msg">No stock alerts — everything looks good! ✅</div>';
+      return;
+    }
+    el.innerHTML = alertItems.map(function (p) {
+      var idx = PRODUCTS.indexOf(p);
+      var st = getStatus(p);
+      var thumb = p.img ? '<img src="' + p.img + '">' : p.em;
+      return '<div class="mini-row"><div class="mini-thumb">' + thumb + '</div><div class="mini-body"><div class="mini-nm">' + p.name + '</div><div class="mini-stock">' + p.cat + ' · ' + p.stock + ' kg left (threshold ' + p.threshold + ' kg)</div></div><span class="status-pill ' + statusPillClass(st) + '">' + statusLabel(st) + '</span></div>';
+    }).join('');
+  }
+
+  function renderCharts() {
+    var ctx1 = document.getElementById('chart-stock').getContext('2d');
+    var sorted = PRODUCTS.slice().sort(function (a, b) { return a.stock - b.stock; });
+    var labels = sorted.map(function (p) { return p.name; });
+    var data = sorted.map(function (p) { return p.stock; });
+    var colors = sorted.map(function (p) { var s = getStatus(p); return s === 'out' ? '#C0392B' : s === 'low' ? '#C7900F' : '#2C5427'; });
+
+    if (chartStock) chartStock.destroy();
+    chartStock = new Chart(ctx1, {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ label: 'Stock (kg)', data: data, backgroundColor: colors, borderRadius: 6 }] },
+      options: {
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, grid: { color: '#F0E8D8' } }, y: { grid: { display: false } } }
+      }
+    });
+
+    var ctx2 = document.getElementById('chart-cat').getContext('2d');
+    var catCounts = {};
+    PRODUCTS.forEach(function (p) { catCounts[p.cat] = (catCounts[p.cat] || 0) + 1; });
+    var catLabels = Object.keys(catCounts);
+    var catData = catLabels.map(function (c) { return catCounts[c]; });
+    var palette = ['#2C5427', '#C76018', '#4A7A40', '#E08A3E', '#5C3A1E', '#9C8570', '#C7900F'];
+
+    if (chartCat) chartCat.destroy();
+    chartCat = new Chart(ctx2, {
+      type: 'doughnut',
+      data: { labels: catLabels, datasets: [{ data: catData, backgroundColor: palette, borderWidth: 2, borderColor: '#fff' }] },
+      options: {
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+      }
+    });
+  }
+
+  function populateCategoryFilter() {
+    var sel = document.getElementById('cat-filter');
+    var current = sel.value;
+    var cats = Array.from(new Set(PRODUCTS.map(function (p) { return p.cat; })));
+    sel.innerHTML = '<option value="">All Categories</option>' + cats.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
+    sel.value = current;
+  }
+
+  // ── RENDER: PRODUCTS TABLE ──
+  function renderTable() {
+    var q = document.getElementById('search-input').value.trim().toLowerCase();
+    var catF = document.getElementById('cat-filter').value;
+    var statF = document.getElementById('status-filter').value;
+
+    var filtered = PRODUCTS.map(function (p, i) { return { p: p, i: i }; }).filter(function (o) {
+      if (q && o.p.name.toLowerCase().indexOf(q) === -1) return false;
+      if (catF && o.p.cat !== catF) return false;
+      if (statF && getStatus(o.p) !== statF) return false;
+      return true;
+    });
+
+    var body = document.getElementById('table-body');
+    if (filtered.length === 0) {
+      body.innerHTML = '<div class="empty-msg">No products match your search/filter.</div>';
+      return;
+    }
+
+    body.innerHTML = filtered.map(function (o) {
+      var p = o.p, i = o.i;
+      var thumb = p.img ? '<img src="' + p.img + '">' : p.em;
+      var st = getStatus(p);
+      return '<div class="pt-row">'
+        + '<div class="pt-thumb">' + thumb + '</div>'
+        + '<div><div class="pt-nm">' + p.name + '</div><div class="pt-desc">' + p.desc + '</div></div>'
+        + '<div class="pt-cat">' + p.cat + '</div>'
+        + '<div class="pt-stock">' + p.stock + ' kg</div>'
+        + '<div><span class="status-pill ' + statusPillClass(st) + '">' + statusLabel(st) + '</span></div>'
+        + '<div class="pt-actions"><button onclick="editProduct(' + i + ')" title="Edit">✏️</button><button class="del" onclick="deleteProduct(' + i + ')" title="Delete">🗑️</button></div>'
+        + '</div>';
+    }).join('');
+  }
+
+  var toastTimer;
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3000);
+  }
+
+  checkAuth();
+</script>
+
+</body>
+</html>
