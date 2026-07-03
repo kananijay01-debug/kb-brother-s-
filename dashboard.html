@@ -342,7 +342,7 @@
               <button class="btn btn-gr" onclick="saveProduct()">Save Product</button>
               <button class="btn btn-ol" onclick="goPage('products')">Cancel</button>
             </div>
-            <div class="note">📌 This dashboard reads/writes the same product list your website uses (browser storage key <b>kb_products</b>). Keep this file in the same website folder/domain as <b>index.html</b> so both stay in sync.</div>
+            <div class="note">📌 This dashboard reads/writes products through the backend server (<b id="note-api-base"></b>). Any change here appears automatically on the live website — no manual sync needed.</div>
           </div>
         </div>
 
@@ -364,10 +364,14 @@
 <script>
   // ══════════════════════════════════════════════════════════
   // 👉 OWNER: Change this password, then save the file.
+  //    ⚠️ IMPORTANT: this must exactly match ADMIN_KEY in backend/.env
   var ADMIN_PASSWORD = 'kbbrothers@2026';
-  // ══════════════════════════════════════════════════════════
 
-  var STORAGE_KEY = 'kb_products';
+  // 👉 OWNER: Set this to your backend server's address.
+  //    Local testing:  http://localhost:4000
+  //    Live server:    https://your-backend-domain.com
+  var API_BASE = 'https://kb-brothers-backend.onrender.com';
+  // ══════════════════════════════════════════════════════════
 
   var DEFAULT_PRODUCTS = [
     { name: 'Onion Powder', cat: 'Vegetable Powder', em: '🧅', bg: 'bg2', desc: 'Made from farm-fresh onions, dehydrated and milled for consistent pungency and colour in seasonings and blends.', stock: 320, threshold: 40 },
@@ -387,6 +391,24 @@
   var editIndex = -1;
   var tempImgData = '';
   var chartStock = null, chartCat = null;
+
+  // ── API HELPERS ──
+  function apiGet(url) {
+    return fetch(API_BASE + url).then(function (r) {
+      if (!r.ok) throw new Error('Request failed');
+      return r.json();
+    });
+  }
+  function apiSend(url, method, body) {
+    return fetch(API_BASE + url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ADMIN_PASSWORD },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) {
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || 'Request failed'); });
+      return r.json();
+    });
+  }
 
   // ── AUTH ──
   function login() {
@@ -408,36 +430,38 @@
   function enterDashboard() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('dash-screen').style.display = 'block';
-    loadProducts();
-    renderAll();
+    loadProducts().then(renderAll).catch(function () {
+      showToast('⚠️ Backend server thi connect na thayu. API_BASE check karo.');
+    });
   }
   function checkAuth() {
     if (sessionStorage.getItem('kb_admin_ok') === '1') { enterDashboard(); }
     else { document.getElementById('login-screen').style.display = 'flex'; }
   }
 
-  // ── DATA ──
+  // ── DATA (now backed by the Node.js API instead of localStorage) ──
   function loadProducts() {
-    var saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try { PRODUCTS = JSON.parse(saved); } catch (e) { PRODUCTS = DEFAULT_PRODUCTS.slice(); }
-    } else {
-      PRODUCTS = DEFAULT_PRODUCTS.slice();
-    }
-    // migrate old entries that don't have stock/threshold fields yet
-    PRODUCTS.forEach(function (p) {
-      if (typeof p.stock !== 'number') p.stock = 0;
-      if (typeof p.threshold !== 'number') p.threshold = 10;
+    return apiGet('/api/products').then(function (data) {
+      PRODUCTS = data;
+      // migrate old entries that don't have stock/threshold fields yet
+      PRODUCTS.forEach(function (p) {
+        if (typeof p.stock !== 'number') p.stock = 0;
+        if (typeof p.threshold !== 'number') p.threshold = 10;
+      });
     });
   }
-  function persistProducts() { localStorage.setItem(STORAGE_KEY, JSON.stringify(PRODUCTS)); }
 
   function resetProducts() {
-    if (!confirm('Reset product list to default? This removes all your changes.')) return;
-    PRODUCTS = DEFAULT_PRODUCTS.slice();
-    persistProducts();
-    renderAll();
-    showToast('↺ Reset to default product list.');
+    if (!confirm('Reset product list to default? This removes ALL products on the server for everyone, including the website.')) return;
+    var deletions = PRODUCTS.map(function (p) { return apiSend('/api/products/' + p.id, 'DELETE'); });
+    Promise.all(deletions)
+      .then(function () {
+        var creations = DEFAULT_PRODUCTS.map(function (p) { return apiSend('/api/products', 'POST', p); });
+        return Promise.all(creations);
+      })
+      .then(loadProducts)
+      .then(function () { renderAll(); showToast('↺ Reset to default product list.'); })
+      .catch(function () { showToast('⚠️ Reset failed. Backend connection check karo.'); });
   }
   function exportBackup() {
     var blob = new Blob([JSON.stringify(PRODUCTS, null, 2)], { type: 'application/json' });
@@ -447,6 +471,11 @@
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast('⬇ Backup downloaded.');
+  }
+
+  // ── IMAGE HELPER (img is now a self-contained base64 data URI, or empty) ──
+  function imgSrc(p) {
+    return p.img || '';
   }
 
   // ── STATUS HELPERS ──
@@ -485,7 +514,7 @@
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function (ev) {
-      tempImgData = ev.target.result;
+      tempImgData = ev.target.result; // base64 data URI, saved directly into the product record
       document.getElementById('p-img-preview').innerHTML = '<img src="' + tempImgData + '">';
     };
     reader.readAsDataURL(file);
@@ -502,19 +531,28 @@
 
     if (!name) { showToast('⚠️ Please enter a product name.'); return; }
 
+    var saveBtn = document.querySelector('#page-form .btn-gr');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+
     var prod = {
       name: name, cat: cat, desc: desc, em: emoji, stock: stock, threshold: threshold,
       bg: (editIndex > -1 ? PRODUCTS[editIndex].bg : BGS[Math.floor(Math.random() * BGS.length)]),
       img: tempImgData || (editIndex > -1 ? PRODUCTS[editIndex].img : '')
     };
 
-    if (editIndex > -1) { PRODUCTS[editIndex] = prod; } else { PRODUCTS.push(prod); }
+    var req = (editIndex > -1)
+      ? apiSend('/api/products/' + PRODUCTS[editIndex].id, 'PUT', prod)
+      : apiSend('/api/products', 'POST', prod);
 
-    persistProducts();
-    renderAll();
-    cancelEdit();
-    showToast('✅ Product saved successfully.');
-    goPage('products');
+    req.then(loadProducts)
+      .then(function () {
+        renderAll();
+        cancelEdit();
+        showToast('✅ Product saved successfully.');
+        goPage('products');
+      })
+      .catch(function () { showToast('⚠️ Save failed. Backend connection check karo.'); })
+      .finally(function () { if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save Product'; } });
   }
 
   function editProduct(i) {
@@ -547,10 +585,10 @@
   }
   function deleteProduct(i) {
     if (!confirm('Delete "' + PRODUCTS[i].name + '"? This cannot be undone.')) return;
-    PRODUCTS.splice(i, 1);
-    persistProducts();
-    renderAll();
-    renderTable();
+    apiSend('/api/products/' + PRODUCTS[i].id, 'DELETE')
+      .then(loadProducts)
+      .then(function () { renderAll(); renderTable(); showToast('🗑️ Product deleted.'); })
+      .catch(function () { showToast('⚠️ Delete failed. Backend connection check karo.'); });
   }
 
   // ── RENDER: OVERVIEW ──
@@ -606,7 +644,7 @@
       attnList.innerHTML = alertItems.map(function (p) {
         var idx = PRODUCTS.indexOf(p);
         var st = getStatus(p);
-        var thumb = p.img ? '<img src="' + p.img + '">' : p.em;
+        var thumb = p.img ? '<img src="' + imgSrc(p) + '">' : p.em;
         return '<div class="mini-row"><div class="mini-thumb">' + thumb + '</div><div class="mini-body"><div class="mini-nm">' + p.name + '</div><div class="mini-stock">' + p.stock + ' kg in stock · threshold ' + p.threshold + ' kg</div></div><span class="status-pill ' + statusPillClass(st) + '">' + statusLabel(st) + '</span></div>';
       }).join('');
     }
@@ -625,7 +663,7 @@
     el.innerHTML = alertItems.map(function (p) {
       var idx = PRODUCTS.indexOf(p);
       var st = getStatus(p);
-      var thumb = p.img ? '<img src="' + p.img + '">' : p.em;
+      var thumb = p.img ? '<img src="' + imgSrc(p) + '">' : p.em;
       return '<div class="mini-row"><div class="mini-thumb">' + thumb + '</div><div class="mini-body"><div class="mini-nm">' + p.name + '</div><div class="mini-stock">' + p.cat + ' · ' + p.stock + ' kg left (threshold ' + p.threshold + ' kg)</div></div><span class="status-pill ' + statusPillClass(st) + '">' + statusLabel(st) + '</span></div>';
     }).join('');
   }
@@ -696,7 +734,7 @@
 
     body.innerHTML = filtered.map(function (o) {
       var p = o.p, i = o.i;
-      var thumb = p.img ? '<img src="' + p.img + '">' : p.em;
+      var thumb = p.img ? '<img src="' + imgSrc(p) + '">' : p.em;
       var st = getStatus(p);
       return '<div class="pt-row">'
         + '<div class="pt-thumb">' + thumb + '</div>'
@@ -718,6 +756,8 @@
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3000);
   }
 
+  var noteEl = document.getElementById('note-api-base');
+  if (noteEl) noteEl.textContent = API_BASE;
   checkAuth();
 </script>
 
