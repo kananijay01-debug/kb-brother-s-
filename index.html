@@ -48,8 +48,11 @@
     padding: 0 48px; gap: 20px;
   }
   .logo { display: flex; align-items: center; gap: 11px; cursor: pointer; border: none; background: none; flex-shrink: 0 }
-  .logo-dot {
-    width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(150deg, var(--gr), var(--gr2));
+  .logo-img{
+    width:50px;
+    height:50px;
+    object-fit:contain;
+ background: linear-gradient(150deg, var(--gr), var(--gr2));
     display: flex; align-items: center; justify-content: center; font-family: var(--fs); font-weight: 700;
     color: var(--cr); font-size: 17px; box-shadow: 0 6px 16px rgba(44,84,39,.28);
   }
@@ -424,7 +427,7 @@
   <!-- ============ NAV ============ -->
   <nav>
     <button class="logo" onclick="goTo('home')">
-      <span class="logo-dot">KB</span>
+      <img src="images/logo.png" alt="KB Brothers Logo" class="logo-img">
       <span class="logo-txt">
         <span class="logo-name">KB <span>Brother's</span></span><br>
         <span class="logo-tag">Dehydration &amp; It's Powder</span>
@@ -989,7 +992,7 @@
   //    Must be the SAME value used in dashboard.html.
   //    Local testing:  http://localhost:4000
   //    Live server:    https://your-backend-domain.com
-  var API_BASE = 'https://kb-brothers-backend.onrender.com';
+  var API_BASE = 'https://kb-brothers-backend.onrender.com<span class="logo-dot">KB</span>';
   // ══════════════════════════════════════════════════════════
 
   // ── PRODUCT DATA (now comes from the backend API, not a fixed list) ──
