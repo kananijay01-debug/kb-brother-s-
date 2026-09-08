@@ -395,6 +395,20 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0) }
 
+  /* ============ PRODUCTS HORIZONTAL ============ */
+  .prod-hz { 
+    display: flex; gap: 30px; 
+    background: rgba(20, 25, 30, 0.45); 
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px; overflow: hidden; margin-bottom: 30px; 
+    transition: transform .35s ease, box-shadow .35s ease; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+  }
+  .prod-hz:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); background: rgba(20, 25, 30, 0.6); }
+  .prod-hz-img { width: 45%; flex-shrink: 0; position: relative; min-height: 400px; }
+  .prod-hz-body { padding: 40px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  
   /* ============ RESPONSIVE ============ */
   @media (max-width: 1080px) {
     .g4, .cert-g, .proc-g, .q-g { grid-template-columns: repeat(2, 1fr) }
@@ -404,6 +418,8 @@
     .h-blob { display: none }
     .stat-band { grid-template-columns: repeat(2, 1fr) }
     .promo { grid-template-columns: 1fr; text-align: left }
+    .prod-hz { flex-direction: column; }
+    .prod-hz-img { width: 100%; height: 300px; min-height: auto; }
   }
   @media (max-width: 780px) {
     nav { padding: 0 20px }
@@ -419,6 +435,7 @@
     footer { padding: 44px 22px 20px }
     .h-title { font-size: 38px }
     .cform { padding: 26px }
+    .prod-hz-body { padding: 26px; }
   }
 </style>
 </head>
@@ -731,18 +748,101 @@
       <p>Dehydrated vegetables, fruit powders, spice powders and food ingredients — processed for consistency and supplied in bulk.</p>
     </div>
 
-    <div class="sec">
-      <div class="prod-filter-note">Interested in a product? Click <b>Enquiry Now</b> on any card and we'll get back to you with specifications, packaging and pricing for your order volume.</div>
-      <div class="g4" id="prod-grid"></div>
-    </div>
-
-    <div class="promo">
-      <div>
-        <div class="promo-lbl">Custom Requirements</div>
-        <h2 class="promo-h">Need a <b>custom blend</b> or specific mesh size?</h2>
-        <p class="promo-sub">We work with buyers on particle size, packaging format and private-label requirements for bulk orders.</p>
+    <div class="sec" style="background: url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat; position: relative;">
+      <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(10, 15, 20, 0.85); z-index: 0;"></div>
+      <div style="position: relative; z-index: 1;">
+      <div class="prod-filter-note" style="color: rgba(255,255,255,0.7);">Interested in a product? Click <b>Enquiry Now</b> on any card and we'll get back to you with specifications, packaging and pricing for your order volume.</div>
+      
+      <div class="prod-hz">
+        <div class="prod-hz-img"><img src="images/white_onion.png" alt="Dehydrated White Onion" style="object-fit:cover;width:100%;height:100%;position:absolute;top:0;left:0;"></div>
+        <div class="prod-hz-body">
+          <div class="prod-hz-title" style="color: #F0E8D8; font-family: var(--fs); font-size: 42px; line-height: 1.1; margin-bottom: 20px;">
+            <span style="color: #55B4D4; font-size: 24px; display: block; margin-bottom: 4px;">Dehydrated</span>
+            <span style="color: #F4C470;">White Onion</span>
+          </div>
+          <div class="prod-hz-desc" style="color: #ccc; margin-bottom: 24px;">Used in Fast food, food service packs, stuffing mixes, pickled products, meat products, sea food products, gourmet sauces, seasoning and in many other dishes as well as ingredients.</div>
+          
+          <div class="prod-hz-specs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.2); padding: 16px; border-radius: 8px;">
+            <div class="prod-spec" style="color: #fff;"><b style="color: #bbb; display: inline-block; width: 60px;">Color</b> White</div>
+            <div class="prod-spec" style="color: #fff;"><b style="color: #bbb; display: inline-block; width: 60px;">Grade</b> Premium | A | B (Commercial)</div>
+          </div>
+          
+          <div style="color: #fff; font-size: 14px; margin-bottom: 24px;">
+            <div style="color: #F4C470; font-size: 22px; font-family: var(--fs); margin-bottom: 12px;">* Size <span style="float: right; font-size: 16px; color: #fff;">Place of Origin India</span></div>
+            <table style="width: 100%; border-collapse: collapse; color: #ddd;">
+              <tr><td style="padding: 4px 0; width: 120px;">Flakes</td><td>10 - 15mm</td></tr>
+              <tr><td style="padding: 4px 0;">Chopped</td><td>3 - 5mm (5-8 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Minced</td><td>1 - 3mm (8-16 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Granules</td><td>0.5 - 2mm (16-26 mesh)<br>0 - 1mm (26-40 mesh)<br>0 - 0.5mm (40-80 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Powder</td><td>100 - 120 mesh</td></tr>
+            </table>
+            <div style="font-size: 11px; margin-top: 10px; color: #888;">Available as per customized cut size and specification</div>
+          </div>
+          
+          <button class="btn b-or" onclick="enquireProduct('Dehydrated White Onion')" style="align-self: flex-start;">Enquiry Now</button>
+        </div>
       </div>
-      <div class="promo-cta"><button class="btn b-or b-lg" onclick="goTo('contact')">Enquiry Now →</button></div>
+
+      <div class="prod-hz">
+        <div class="prod-hz-img"><img src="images/red_onion.png" alt="Dehydrated Red | Pink Onion" style="object-fit:cover;width:100%;height:100%;position:absolute;top:0;left:0;"></div>
+        <div class="prod-hz-body">
+          <div class="prod-hz-title" style="color: #fff; font-family: var(--fs); font-size: 42px; line-height: 1.1; margin-bottom: 20px;">
+            <span style="color: #fff; font-size: 24px; display: block; margin-bottom: 4px;">Dehydrated</span>
+            <span style="color: #E22B7E;">Red | Pink Onion</span>
+          </div>
+          <div class="prod-hz-desc" style="color: #ccc; margin-bottom: 24px;">Dehydrated Red onions are opted for an alternate to be fresh and used for the preparation of soups, sauces, gravies and various other dishes.</div>
+          
+          <div class="prod-hz-specs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.2); padding: 16px; border-radius: 8px;">
+            <div class="prod-spec" style="color: #fff;"><b style="color: #bbb; display: inline-block; width: 60px;">Color</b> Red, Purple to Pink</div>
+            <div class="prod-spec" style="color: #fff;"><b style="color: #bbb; display: inline-block; width: 60px;">Grade</b> Premium | A | B (Commercial)</div>
+          </div>
+          
+          <div style="color: #fff; font-size: 14px; margin-bottom: 24px;">
+            <div style="color: #E22B7E; font-size: 22px; font-family: var(--fs); margin-bottom: 12px;">* Size <span style="float: right; font-size: 16px; color: #fff;">Place of Origin India</span></div>
+            <table style="width: 100%; border-collapse: collapse; color: #ddd;">
+              <tr><td style="padding: 4px 0; width: 120px;">Flakes</td><td>10 - 15mm</td></tr>
+              <tr><td style="padding: 4px 0;">Chopped</td><td>3 - 5mm (5-8 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Minced</td><td>1 - 3mm (8-16 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Granules</td><td>0.5 - 2mm (16-26 mesh)<br>0 - 1mm (26-40 mesh)<br>0 - 0.5mm (40-80 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Powder</td><td>100 - 120 mesh</td></tr>
+            </table>
+            <div style="font-size: 11px; margin-top: 10px; color: #888;">Available as per customized cut size and specification</div>
+          </div>
+          
+          <button class="btn b-or" onclick="enquireProduct('Dehydrated Red | Pink Onion')" style="align-self: flex-start;">Enquiry Now</button>
+        </div>
+      </div>
+
+      <div class="prod-hz">
+        <div class="prod-hz-img"><img src="images/garlic.png" alt="Dehydrated Garlic" style="object-fit:cover;width:100%;height:100%;position:absolute;top:0;left:0;"></div>
+        <div class="prod-hz-body">
+          <div class="prod-hz-title" style="color: #fff; font-family: var(--fs); font-size: 42px; line-height: 1.1; margin-bottom: 20px;">
+            <span style="color: #55B4D4; font-size: 24px; display: block; margin-bottom: 4px;">Dehydrated</span>
+            <span style="color: #F4C470;">Garlic</span>
+          </div>
+          <div class="prod-hz-desc" style="color: #ccc; margin-bottom: 24px;">Dehydrated Garlic adds flavor and aroma to a wide range of exotic dishes. It is used for seasoning dry soup mixes, sauces, vegetable mixes, stuffing mixes, fast foods etc.</div>
+          
+          <div class="prod-hz-specs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.2); padding: 16px; border-radius: 8px;">
+            <div class="prod-spec" style="color: #fff;"><b style="color: #bbb; display: inline-block; width: 60px;">Color</b> White to Beige</div>
+            <div class="prod-spec" style="color: #fff;"><b style="color: #bbb; display: inline-block; width: 60px;">Grade</b> Premium | A | B (Commercial)</div>
+          </div>
+          
+          <div style="color: #fff; font-size: 14px; margin-bottom: 24px;">
+            <div style="color: #F4C470; font-size: 22px; font-family: var(--fs); margin-bottom: 12px;">* Size <span style="float: right; font-size: 16px; color: #fff;">Place of Origin India</span></div>
+            <table style="width: 100%; border-collapse: collapse; color: #ddd;">
+              <tr><td style="padding: 4px 0; width: 120px;">Flakes</td><td>10 - 15mm</td></tr>
+              <tr><td style="padding: 4px 0;">Chopped</td><td>3 - 5mm (5-8 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Minced</td><td>1 - 3mm (8-16 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Granules</td><td>0.5 - 2mm (16-26 mesh)<br>0 - 1mm (26-40 mesh)<br>0 - 0.5mm (40-80 mesh)</td></tr>
+              <tr><td style="padding: 4px 0;">Powder</td><td>100 - 120 mesh</td></tr>
+            </table>
+            <div style="font-size: 11px; margin-top: 10px; color: #888;">Available as per customized cut size and specification</div>
+          </div>
+          
+          <button class="btn b-or" onclick="enquireProduct('Dehydrated Garlic')" style="align-self: flex-start;">Enquiry Now</button>
+        </div>
+      </div>
+      </div>
     </div>
   </div>
 
@@ -819,31 +919,45 @@
           <input type="hidden" name="_template" value="table">
           <input type="hidden" name="_captcha" value="false">
           <div class="f-row">
-            <div class="f-group"><label>Full Name *</label><input type="text" name="name" required placeholder="Your name"></div>
+            <div class="f-group"><label>Your Name *</label><input type="text" name="name" required placeholder="Your name"></div>
             <div class="f-group"><label>Company Name</label><input type="text" name="company" placeholder="Your company"></div>
           </div>
           <div class="f-row">
-            <div class="f-group"><label>Phone Number *</label><input type="tel" name="phone" required placeholder="+91"></div>
-            <div class="f-group"><label>Email Address *</label><input type="email" name="email" required placeholder="you@company.com"></div>
+            <div class="f-group"><label>Contact Details *</label><input type="text" name="phone" required placeholder="Phone number / Email"></div>
+            <div class="f-group"><label>Product Name</label><input type="text" name="product" id="enq-product" placeholder="Product of interest"></div>
           </div>
-          <div class="f-group">
-            <label>Product of Interest</label>
-            <select id="enq-product" name="product">
-              <option value="">Select a product</option>
-              <option>Onion Powder</option>
-              <option>Garlic Powder</option>
-              <option>Tomato Powder</option>
-              <option>Ginger Powder</option>
-              <option>Beetroot Powder</option>
-              <option>Spinach Powder</option>
-              <option>Moringa Powder</option>
-              <option>Banana Powder</option>
-              <option>Mango Powder</option>
-              <option>Green Chilli Powder</option>
-              <option>Custom Blend / Other</option>
-            </select>
+          <div class="f-row">
+            <div class="f-group">
+              <label>In Which Form</label>
+              <select name="form">
+                <option value="">Select form</option>
+                <option value="Flakes">Flakes</option>
+                <option value="Chopped">Chopped</option>
+                <option value="Minced">Minced</option>
+                <option value="Granules">Granules</option>
+                <option value="Powder">Powder</option>
+              </select>
+            </div>
+            <div class="f-group"><label>Packing Size (kg)</label><input type="text" name="packing_size" placeholder="Custom size"></div>
           </div>
-          <div class="f-group"><label>Message</label><textarea id="enq-msg" name="message" placeholder="Tell us your required quantity, packaging and delivery location..."></textarea></div>
+          <div class="f-row">
+            <div class="f-group"><label>Packing Material</label><input type="text" name="packing_material" placeholder="Packing material"></div>
+            <div class="f-group">
+              <label>Grade</label>
+              <select name="grade" id="grade-select" onchange="if(this.value==='Custom') document.getElementById('custom-grade').style.display='block'; else document.getElementById('custom-grade').style.display='none';">
+                <option value="">Select grade</option>
+                <option value="Premium">Premium</option>
+                <option value="A">A</option>
+                <option value="B (Commercial)">B (Commercial)</option>
+                <option value="Custom">Custom</option>
+              </select>
+              <input type="text" name="custom_grade" id="custom-grade" placeholder="Specify custom grade" style="display:none; margin-top:10px;">
+            </div>
+          </div>
+          <div class="f-row">
+            <div class="f-group"><label>Order Quantity (kg)</label><input type="text" name="quantity" placeholder="e.g. 500"></div>
+          </div>
+          <div class="f-group"><label>Additional Message</label><textarea id="enq-msg" name="message" placeholder="Any other details..."></textarea></div>
           <button type="submit" class="btn b-or b-blk b-lg" id="enq-submit-btn">Submit Enquiry →</button>
         </form>
       </div>
@@ -1188,9 +1302,9 @@
   function enquireProduct(name) {
     goTo('contact');
     setTimeout(function () {
-      var sel = document.getElementById('enq-product');
+      var prod = document.getElementById('enq-product');
       var msg = document.getElementById('enq-msg');
-      if (sel) { for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === name) sel.selectedIndex = i; } }
+      if (prod) { prod.value = name; }
       if (msg && !msg.value) msg.value = 'I am interested in ' + name + '. Please share pricing, packaging options and MOQ for bulk order.';
     }, 150);
   }
@@ -1260,12 +1374,6 @@
   }
 
   document.getElementById('yr').textContent = new Date().getFullYear();
-  loadProducts().then(function () {
-    renderProducts();
-    renderAdminList();
-  }).catch(function () {
-    showToast('⚠️ Backend server thi connect na thayu. Products load na thaya.');
-  });
   checkAdminAccess();
   if (location.hash === '#admin') { goTo('admin'); }
 </script>
