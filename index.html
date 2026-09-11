@@ -72,7 +72,8 @@
     background: var(--gr); color: var(--cr); border: none; padding: 11px 26px; border-radius: 99px;
     font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; letter-spacing: .02em;
   }
-  .nav-cta:hover { background: var(--or); transform: translateY(-1px) }
+  .nav-cta:hover { background: var(--or); color: var(--cr); transform: translateY(-1px) }
+  .nav-cta:active { background: var(--or); color: var(--cr); transform: translateY(0) }
   .hambtn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--tx); margin-left: 6px }
 
   #mob-menu {
@@ -97,8 +98,9 @@
   /* BUTTONS */
   .btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--fn); font-weight: 500; cursor: pointer; border: none; transition: all .2s; text-decoration: none; letter-spacing: .02em }
   .b-or {
-   padding: 14px 32px; border-radius: 99px; font-size: 14px }
-  .b-or:hover { background: #a04f12; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(199,96,24,.3) }
+    background: var(--or); color: var(--cr); padding: 14px 32px; border-radius: 99px; font-size: 14px }
+  .b-or:hover { background: #a04f12; color: var(--cr); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(199,96,24,.3) }
+  .b-or:active { background: #8B3E0C; color: var(--cr); transform: translateY(0) }
   .b-gr { background: var(--gr); color: var(--cr); padding: 14px 32px; border-radius: 99px; font-size: 14px }
   .b-gr:hover { background: var(--gr2); transform: translateY(-2px); box-shadow: 0 10px 24px rgba(44,84,39,.3) }
   .b-ol { background: transparent; color: var(--gr); padding: 13px 30px; border-radius: 99px; font-size: 14px; border: 1.5px solid var(--gr) }
