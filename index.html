@@ -72,8 +72,8 @@
     background: var(--gr); color: var(--cr); border: none; padding: 11px 26px; border-radius: 99px;
     font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; letter-spacing: .02em;
   }
-  .nav-cta:hover { background: var(--or); color: var(--cr); transform: translateY(-1px) }
-  .nav-cta:active { background: var(--or); color: var(--cr); transform: translateY(0) }
+  .nav-cta:hover, .nav-cta:focus-visible { background: var(--gr2); color: var(--cr); transform: translateY(-1px) }
+  .nav-cta:active { background: var(--gr); color: var(--cr); transform: translateY(0) }
   .hambtn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--tx); margin-left: 6px }
 
   #mob-menu {
@@ -109,6 +109,9 @@
   .b-olw:hover { background: rgba(255,255,255,.12) }
   .b-lg { padding: 16px 38px !important; font-size: 15px !important }
   .b-blk { width: 100%; justify-content: center }
+  #enq-submit-btn { display: flex; visibility: visible; opacity: 1; background: var(--or); color: var(--cr) }
+  #enq-submit-btn:hover:not(:disabled), #enq-submit-btn:focus-visible { background: #a04f12; color: var(--cr) }
+  #enq-submit-btn:disabled { opacity: .75; cursor: wait }
 
   /* SECTION */
   .sec { padding: 88px 56px }
